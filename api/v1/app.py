@@ -7,6 +7,10 @@ from flask import Flask, jsonify, Response
 from models import storage
 from api.v1.views import app_views
 app = Flask(__name__)
+'''The Flask web application instance.'''
+app_host = os.getenv('HBNB_API_HOST', '0.0.0.0')
+app_port = int(os.getenv('HBNB_API_PORT', '5000'))
+app.url_map.strict_slashes = False
 app.register_blueprint(app_views)
 
 
@@ -19,14 +23,10 @@ def teardown(self):
 
 
 if __name__ == '__main__':
-    try:
-        host = os.environ.get('HBNB_API_HOST')
-    except:
-        host = '0.0.0.0'
-
-    try:
-        port = os.environ.get('HBNB_API_PORT')
-    except:
-        port = '5000'
-
-    app.run(host=host, port=port, threaded=True)
+    app_host = os.getenv('HBNB_API_HOST', '0.0.0.0')
+    app_port = int(os.getenv('HBNB_API_PORT', '5000'))
+    app.run(
+        host=app_host,
+        port=app_port,
+        threaded=True
+    )
