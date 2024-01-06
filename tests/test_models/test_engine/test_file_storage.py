@@ -113,3 +113,47 @@ class TestFileStorage(unittest.TestCase):
         with open("file.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
+
+
+class TestFileStorageGetCountMethods(unittest.TestCase):
+
+    def setUp(self):
+        """Set up the test environment"""
+        self.state_data = {"name": "California"}
+        self.state = State(**self.state_data)
+        storage.new(self.state)
+        storage.save()
+
+    def tearDown(self):
+        """Clean up after the test"""
+        storage.delete(self.state)
+        storage.save()
+
+    def test_get_method(self):
+        """Test the get method of FileStorage"""
+        state_id = self.state.id
+        retrieved_state = storage.get(State, state_id)
+        self.assertEqual(retrieved_state, self.state)
+
+    def test_get_method_with_nonexistent_object(self):
+        """Test the get method with a nonexistent object"""
+        nonexistent_state_id = "nonexistent_id"
+        retrieved_state = storage.get(State, nonexistent_state_id)
+        self.assertIsNone(retrieved_state)
+
+    def test_count_method(self):
+        """Test the count method of FileStorage"""
+        initial_count = storage.count(State)
+
+        new_state_data = {"name": "Texas"}
+        new_state = State(**new_state_data)
+        storage.new(new_state)
+        storage.save()
+
+        updated_count = storage.count(State)
+        self.assertEqual(updated_count, initial_count + 1)
+
+    def test_count_method_with_nonexistent_class(self):
+        """Test the count method with a nonexistent class"""
+        nonexistent_class_count = storage.count(NonexistentClass)
+        self.assertEqual(nonexistent_class_count, 0)
