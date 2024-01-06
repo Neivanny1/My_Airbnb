@@ -86,3 +86,59 @@ class TestFileStorage(unittest.TestCase):
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_save(self):
         """Test that save properly saves objects to file.json"""
+
+
+class TestDBStorageGetCountMethods(unittest.TestCase):
+
+    def setUp(self):
+        """Set up the test environment"""
+        self.state_data = {"name": "California"}
+        self.state = State(**self.state_data)
+        storage.new(self.state)
+        storage.save()
+
+    def tearDown(self):
+        """Clean up after the test"""
+        storage.delete(self.state)
+        storage.save()
+
+    def test_get_method(self):
+        """Test the get method of DBStorage"""
+        state_id = self.state.id
+        retrieved_state = storage.get(State, state_id)
+        self.assertEqual(retrieved_state, self.state)
+
+    def test_get_method_with_nonexistent_object(self):
+        """Test the get method with a nonexistent object"""
+        nonexistent_state_id = "nonexistent_id"
+        retrieved_state = storage.get(State, nonexistent_state_id)
+        self.assertIsNone(retrieved_state)
+
+    def test_get_method_with_invalid_class(self):
+        """Test the get method with an invalid class"""
+        invalid_class = object()
+        obj = storage.get(invalid_class, "some_id")
+        self.assertIsNone(obj)
+
+    def test_count_method(self):
+        """Test the count method of DBStorage"""
+        initial_count = storage.count(State)
+
+        new_state_data = {"name": "Texas"}
+        new_state = State(**new_state_data)
+        storage.new(new_state)
+        storage.save()
+
+        updated_count = storage.count(State)
+        self.assertEqual(updated_count, initial_count + 1)
+
+    def test_count_method_with_nonexistent_class(self):
+        """Test the count method with a nonexistent class"""
+        nonexistent_class_count = storage.count(NonexistentClass)
+        self.assertEqual(nonexistent_class_count, 0)
+
+    def test_count_method_with_invalid_class(self):
+        """Test the count method with an invalid class"""
+        invalid_class = object()
+        count = storage.count(invalid_class)
+        self.assertEqual(count, 0)
