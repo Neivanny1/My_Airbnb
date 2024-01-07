@@ -4,6 +4,7 @@ Module for my rest api
 """
 import os
 from flask import Flask, jsonify, Response
+from flask_cors import CORS
 from models import storage
 from api.v1.views import app_views
 app = Flask(__name__)
