@@ -1,31 +1,36 @@
 #!/usr/bin/python3
 """
-Create a route '/status' on onject app_views
+Contains the index view for the API
 """
+from api.v1.views import app_views
 from flask import jsonify
 from models import storage
-from api.v1.views import app_views
+from models.user import User
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
+
+classes = {"users": "User", "places": "Place", "states": "State",
+           "cities": "City", "amenities": "Amenity",
+           "reviews": "Review"}
 
 
-@app_views.route("/status", methods=["GET"], strict_slashes=False)
+@app_views.route('/status', methods=['GET'])
 def status():
     """
-    Returns JSON response for REST api health
+    Defines routes to status page
     """
-    status = {"status": "ok"}
-    return jsonify(status)
+    return jsonify({'status': 'OK'})
 
 
-@app_views.route("/stats", methods=["GET"], strict_slashes=False)
+@app_views.route('/stats', methods=['GET'])
 def count():
     """
-    Returns numbe rof each object type
+    Retrieves the number of each objects by type
     """
-    return jsonify(
-        amenities=storage.count('Amenity'),
-        cities=storage.count('City'),
-        places=storage.count('Place'),
-        reviews=storage.count('Review'),
-        states=storage.count('State'),
-        users=storage.count('User')
-    )
+    count_dict = {}
+    for cls in classes:
+        count_dict[cls] = storage.count(classes[cls])
+    return jsonify(count_dict)
